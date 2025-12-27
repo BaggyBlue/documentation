@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BaggyBlue Documentation</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%233b82f6' stroke-width='2'><path d='M4 19.5A2.5 2.5 0 0 1 6.5 17H20'/><path d='M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z'/></svg>">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f7f8fa;
+            color: #1f2937;
+            line-height: 1.7;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .mobile-header {
+            display: none;
+            background: #fff;
+            padding: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .mobile-header-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #3b82f6;
+        }
+
+        .mobile-header-logo svg {
+            width: 28px;
+            height: 28px;
+        }
+
+        .mobile-menu-btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background 0.2s;
+        }
+
+        .mobile-menu-btn:hover {
+            background: #2563eb;
+        }
+
+        .mobile-menu-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .mobile-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 150;
+        }
+
+        .mobile-overlay.active {
+            display: block;
+        }
+
+        body.menu-open {
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: #fff;
+            border-right: 1px solid #e5e7eb;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            padding: 2rem 0;
+            transition: transform 0.3s ease;
+            z-index: 200;
+        }
+
+        .sidebar.mobile-hidden {
+            transform: translateX(-100%);
+        }
+
+        .logo {
+            padding: 0 2rem 2rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #3b82f6;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo svg {
+            width: 28px;
+            height: 28px;
+        }
+
+        .nav {
+            padding: 1.5rem 0;
+        }
+
+        .nav-section {
+            padding: 0 2rem 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #9ca3af;
+        }
+
+        .nav-item {
+            padding: 0.6rem 2rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+            color: #4b5563;
+            border-left: 3px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-item svg {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+        }
+
+        .nav-item:hover {
+            background: #f3f4f6;
+            color: #1f2937;
+        }
+
+        .nav-item.active {
+            background: #eff6ff;
+            color: #3b82f6;
+            border-left-color: #3b82f6;
+            font-weight: 500;
+        }
+
+        .content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 3rem 4rem;
+            max-width: 1200px;
+        }
+
+        .section {
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #111827;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin: 2.5rem 0 1rem;
+            color: #1f2937;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin: 2rem 0 1rem;
+            color: #374151;
+        }
+
+        p {
+            margin-bottom: 1rem;
+            color: #4b5563;
+        }
+
+        .info-box {
+            background: #eff6ff;
+            border-left: 4px solid #3b82f6;
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+
+        .warning-box {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+
+        .error-box {
+            background: #fee2e2;
+            border-left: 4px solid #ef4444;
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+
+        .success-box {
+            background: #d1fae5;
+            border-left: 4px solid #10b981;
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+
+        ol, ul {
+            margin: 1rem 0 1.5rem 2rem;
+            color: #4b5563;
+        }
+
+        li {
+            margin: 0.5rem 0;
+        }
+
+        code {
+            background: #f3f4f6;
+            padding: 0.2rem 0.5rem;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            color: #dc2626;
+        }
+
+        .code-block {
+            background: #1f2937;
+            color: #e5e7eb;
+            padding: 1.5rem;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .step {
+            background: #fff;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-radius: 6px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .step-number {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background: #3b82f6;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            font-weight: 600;
+            margin-right: 0.5rem;
+        }
+
+        a {
+            color: #3b82f6;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .error-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .error-title {
+            font-weight: 600;
+            color: #ef4444;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .error-message {
+            background: #fee2e2;
+            padding: 0.75rem;
+            border-radius: 4px;
+            margin: 0.5rem 0;
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-header {
+                display: flex;
+            }
+            
+            .sidebar {
+                z-index: 200;
+            }
+            
+            .content {
+                margin-left: 0;
+                padding: 1.5rem 1rem;
+                width: 100%;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            h2 {
+                font-size: 1.4rem;
+            }
+
+            h3 {
+                font-size: 1.1rem;
+            }
+
+            .step {
+                padding: 1rem;
+            }
+
+            .code-block {
+                padding: 1rem;
+                font-size: 0.85rem;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .mobile-header {
+                display: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .logo {
+                font-size: 1.2rem;
+                padding: 0 1rem 1.5rem;
+            }
+
+            .nav-item {
+                padding: 0.6rem 1rem;
+                font-size: 0.9rem;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            h2 {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+    
+    <div class="mobile-header">
+        <div class="mobile-header-logo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+            </svg>
+            BaggyBlue Docs
+        </div>
+        <button class="mobile-menu-btn" id="menuBtn" onclick="toggleMobileMenu()">
+            <svg id="menuIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+            <svg id="closeIcon" style="display: none;" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+            <span id="menuText">Menu</span>
+        </button>
+    </div>
+
+    <div class="container">
+        <aside class="sidebar mobile-hidden" id="sidebar">
+            <div class="logo">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                </svg>
+                BaggyBlue Docs
+            </div>
+            <nav class="nav">
+                <div class="nav-section">Documentation</div>
+                <div class="nav-item active" data-section="hosting">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                        <path d="M2 17l10 5 10-5M2 12l10 5 10-5"></path>
+                    </svg>
+                    Hosting Your Bot
+                </div>
+                <div class="nav-item" data-section="git">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="9" y1="9" x2="15" y2="9"></line>
+                        <line x1="9" y1="15" x2="15" y2="15"></line>
+                    </svg>
+                    Git Repository Setup
+                </div>
+                <div class="nav-item" data-section="startup">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                    Startup Configuration
+                </div>
+                <div class="nav-item" data-section="packages">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M16.5 9.4l-9-5.19M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                        <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                        <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                    </svg>
+                    Managing Packages
+                </div>
+                <div class="nav-item" data-section="sftp">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+                        <polyline points="13 2 13 9 20 9"></polyline>
+                    </svg>
+                    SFTP File Access
+                </div>
+                <div class="nav-item" data-section="errors">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
+                    </svg>
+                    Error Guide
+                </div>
+            </nav>
+        </aside>
+
+        <main class="content">
+            <section class="section active" id="hosting">
+                <h1>
+                    <svg style="width: 36px; height: 36px; display: inline-block; vertical-align: middle; margin-right: 10px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                        <path d="M2 17l10 5 10-5M2 12l10 5 10-5"></path>
+                    </svg>
+                    How to Host Your Discord Bot
+                </h1>
+                <p>Get your Discord bot up and running on BaggyBlue in just a few minutes. Follow these simple steps to deploy your bot.</p>
+
+                <div class="step">
+                    <h3><span class="step-number">1</span>Create Your Account</h3>
+                    <p>Navigate to <a href="https://baggyblue.fun" target="_blank">https://baggyblue.fun</a> and click the <strong>Get Started</strong> button.</p>
+                </div>
+
+                <div class="step">
+                    <h3><span class="step-number">2</span>Discord Authorization</h3>
+                    <p>Click <strong>Continue with Discord</strong> and authorize BaggyBlue to access your Discord account.</p>
+                </div>
+
+                <div class="step">
+                    <h3><span class="step-number">3</span>Select Server Type</h3>
+                    <p>Choose your server type from the dropdown menu:</p>
+                    <ul>
+                        <li><strong>Node.js</strong> - For JavaScript/TypeScript bots</li>
+                        <li><strong>Python</strong> - For Python-based bots</li>
+                    </ul>
+                </div>
+
+                <div class="step">
+                    <h3><span class="step-number">4</span>Create Your Server</h3>
+                    <p>Click <strong>Create</strong>. You'll be automatically redirected to the panel.</p>
+                </div>
+
+                <div class="step">
+                    <h3><span class="step-number">5</span>Get Your Credentials</h3>
+                    <p>Go back to the dashboard, open the <strong>Account</strong> tab, and copy your login credentials.</p>
+                </div>
+
+                <div class="step">
+                    <h3><span class="step-number">6</span>Login to Panel</h3>
+                    <p>Return to the panel and log in using the credentials you copied.</p>
+                </div>
+
+                <div class="step">
+                    <h3><span class="step-number">7</span>Upload Your Files</h3>
+                    <p>Click on your server, navigate to the <strong>Files</strong> tab, and upload your bot files. Don't forget to update your Discord bot token!</p>
+                </div>
+
+                <div class="step">
+                    <h3><span class="step-number">8</span>Start Your Bot</h3>
+                    <p>Head to the <strong>Console</strong> tab and click the <strong>Start</strong> button to launch your bot.</p>
+                </div>
+
+                <div class="success-box">
+                    <strong>
+                        <svg style="width: 16px; height: 16px; display: inline-block; vertical-align: middle; margin-right: 5px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        Congratulations!
+                    </strong> Your Discord bot is now running on BaggyBlue.
+                </div>
+            </section>
+
+            <section class="section" id="git">
+                <h1>
+                    <svg style="width: 36px; height: 36px; display: inline-block; vertical-align: middle; margin-right: 10px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="9" y1="9" x2="15" y2="9"></line>
+                        <line x1="9" y1="15" x2="15" y2="15"></line>
+                    </svg>
+                    How to Clone a Git Repository
+                </h1>
+                <p>Automatically deploy your bot directly from GitHub, GitLab, or other Git hosting services.</p>
+
+                <h2>Basic Setup</h2>
+                <div class="step">
+                    <h3>Repository Configuration</h3>
+                    <p>Go to the <strong>Startup</strong> section in your server settings and configure:</p>
+                    <ul>
+                        <li><strong>Repository Address:</strong> Your repo URL (e.g., <code>https://github.com/yourusername/reponame</code>)</li>
+                        <li><strong>Install Branch:</strong> Usually <code>master</code> or <code>main</code> - this is the production branch</li>
+                    </ul>
+                </div>
+
+                <h2>Private Repository Setup</h2>
+                <div class="info-box">
+                    <strong>
+                        <svg style="width: 16px; height: 16px; display: inline-block; vertical-align: middle; margin-right: 5px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="16" x2="12" y2="12"></line>
+                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                        </svg>
+                        Note:
+                    </strong> If your repository is private, you'll need to provide authentication credentials.
+                </div>
+
+                <div class="step">
+                    <h3>Required Credentials</h3>
+                    <ul>
+                        <li><strong>Git Username:</strong> Your Git hosting username</li>
+                        <li><strong>Personal Access Token:</strong> A token generated from your Git host</li>
+                    </ul>
+                </div>
+
+                <h3>Creating Personal Access Tokens</h3>
+                <div class="step">
+                    <strong>For GitHub:</strong>
+                    <p>Visit <a href="https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens" target="_blank">GitHub Token Documentation</a></p>
+                </div>
+
+                <div class="step">
+                    <strong>For GitLab:</strong>
+                    <p>Visit <a href="https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html" target="_blank">GitLab Token Documentation</a></p>
+                </div>
+
+                <div class="step">
+                    <strong>For Other Services:</strong>
+                    <p>Check your Git hosting provider's documentation for personal access token generation.</p>
+                </div>
+
+                <h2>Triggering Auto-Clone on Restart</h2>
+                <div class="warning-box">
+                    <strong>
+                        <svg style="width: 16px; height: 16px; display: inline-block; vertical-align: middle; margin-right: 5px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                            <line x1="12" y1="9" x2="12" y2="13"></line>
+                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                        </svg>
+                        Warning:
+                    </strong> Make sure to backup any important files before proceeding. This will remove existing files.
+                </div>
+
+                <ol>
+                    <li>Ensure your server has no files (backup anything important first)</li>
+                    <li>Go to <strong>Settings</strong></li>
+                    <li>Click <strong>Reinstall Server</strong></li>
+                    <li>This will pull the latest code from your repository every time your bot restarts</li>
+                </ol>
+            </section>
+
+            <section class="section" id="startup">
+                <h1>
+                    <svg style="width: 36px; height: 36px; display: inline-block; vertical-align: middle; margin-right: 10px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                    Startup Configuration
+                </h1>
+                <p>Customize how your bot starts and which file it executes.</p>
+
+                <h2>Changing the Main File</h2>
+                <div class="step">
+                    <p>Go to the <strong>Startup</strong> section in your server settings.</p>
+                    <p>Change the default main file to your bot's entry point:</p>
+                    <ul>
+                        <li>For root files: <code>filename.js</code> or <code>filename.py</code></li>
+                        <li>For nested files: <code>folder/filename.js</code> or <code>folder/filename.py</code></li>
+                    </ul>
+                </div>
+
+                <div class="info-box">
+                    <strong>
+                        <svg style="width: 16px; height: 16px; display: inline-block; vertical-align: middle; margin-right: 5px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                        </svg>
+                        Examples:
+                    </strong>
+                    <div class="code-block">index.js
+bot.py
+src/index.js
+app/main.py</div>
+                </div>
+            </section>
+
+            <section class="section" id="packages">
+                <h1>
+                    <svg style="width: 36px; height: 36px; display: inline-block; vertical-align: middle; margin-right: 10px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M16.5 9.4l-9-5.19M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                        <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                        <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                    </svg>
+                    Managing Additional Packages
+                </h1>
+                <p>Install extra dependencies your bot needs to run properly.</p>
+
+                <h2>Adding Packages</h2>
+                <div class="step">
+                    <p>Navigate to the <strong>Startup</strong> section to add packages:</p>
+                    
+                    <h3>For Node.js Bots</h3>
+                    <p>Add packages in the <strong>Additional Node Packages</strong> field.</p>
+                    <div class="code-block">express discord.js dotenv axios</div>
+                    
+                    <h3>For Python Bots</h3>
+                    <p>Add packages in the <strong>Additional Python Packages</strong> field.</p>
+                    <div class="code-block">discord.py requests python-dotenv aiohttp</div>
+                </div>
+
+                <div class="info-box">
+                    <strong>
+                        <svg style="width: 16px; height: 16px; display: inline-block; vertical-align: middle; margin-right: 5px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="16" x2="12" y2="12"></line>
+                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                        </svg>
+                        Formatting:
+                    </strong> Separate multiple packages with spaces, not commas.
+                </div>
+            </section>
+
+            <section class="section" id="sftp">
+                <h1>
+                    <svg style="width: 36px; height: 36px; display: inline-block; vertical-align: middle; margin-right: 10px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+                        <polyline points="13 2 13 9 20 9"></polyline>
+                    </svg>
+                    Connecting via SFTP
+                </h1>
+                <p>Access and manage your server files using SFTP (SSH File Transfer Protocol).</p>
+
+                <h2>What is SFTP?</h2>
+                <p>SFTP allows you to securely transfer files between your computer and your server. It's more convenient than using the web panel for managing multiple files.</p>
+
+                <h2>SFTP Client Options</h2>
+                <div class="step">
+                    <h3>Recommended Clients</h3>
+                    <ul>
+                        <li><strong>FileZilla</strong> - Free, cross-platform (Windows, Mac, Linux)</li>
+                        <li><strong>WinSCP</strong> - Windows only, user-friendly</li>
+                        <li><strong>Cyberduck</strong> - Mac and Windows</li>
+                    </ul>
+                </div>
+
+                <h2>Getting Your SFTP Credentials</h2>
+                <div class="step">
+                    <ol>
+                        <li>Log into your BaggyBlue panel</li>
+                        <li>Click on your server</li>
+                        <li>Go to the <strong>Settings</strong> tab</li>
+                        <li>Look for the <strong>SFTP Details</strong> section</li>
+                    </ol>
+                    <p>You'll find:</p>
+                    <ul>
+                        <li><strong>Server Address:</strong> The hostname and port</li>
+                        <li><strong>Username:</strong> Your SFTP username</li>
+                        <li><strong>Password:</strong> Same as your panel password</li>
+                    </ul>
+                </div>
+
+                <h2>Connecting with FileZilla</h2>
+                <div class="step">
+                    <ol>
+                        <li>Open FileZilla</li>
+                        <li>Go to <strong>File → Site Manager</strong></li>
+                        <li>Click <strong>New Site</strong></li>
+                        <li>Enter your connection details:
+                            <ul>
+                                <li><strong>Protocol:</strong> SFTP - SSH File Transfer Protocol</li>
+                                <li><strong>Host:</strong> Your server address (without port)</li>
+                                <li><strong>Port:</strong> The SFTP port number</li>
+                                <li><strong>Logon Type:</strong> Normal</li>
+                                <li><strong>User:</strong> Your SFTP username</li>
+                                <li><strong>Password:</strong> Your panel password</li>
+                            </ul>
+                        </li>
+                        <li>Click <strong>Connect</strong></li>
+                    </ol>
+                </div>
+
+                <div class="warning-box">
+                    <strong>
+                        <svg style="width: 16px; height: 16px; display: inline-block; vertical-align: middle; margin-right: 5px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                            <line x1="12" y1="9" x2="12" y2="13"></line>
+                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                        </svg>
+                        First Connection:
+                    </strong> You may see a security warning about an unknown host key. This is normal - click "OK" or "Accept" to continue.
+                </div>
+
+                <h2>Using SFTP</h2>
+                <div class="step">
+                    <p>Once connected, you can:</p>
+                    <ul>
+                        <li>Drag and drop files between your computer and server</li>
+                        <li>Edit files directly (right-click → Edit)</li>
+                        <li>Create new folders and files</li>
+                        <li>Delete or rename files</li>
+                        <li>Download entire folders</li>
+                    </ul>
+                </div>
+
+                <div class="info-box">
+                    <strong>
+                        <svg style="width: 16px; height: 16px; display: inline-block; vertical-align: middle; margin-right: 5px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                        </svg>
+                        Pro Tip:
+                    </strong> Save your connection in the Site Manager for quick access in the future!
+                </div>
+            </section>
+
+            <section class="section" id="errors">
+                <h1>
+                    <svg style="width: 36px; height: 36px; display: inline-block; vertical-align: middle; margin-right: 10px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
+                    </svg>
+                    Error Explanations &amp; Solutions
+                </h1>
+                <p>Common errors you might encounter and how to resolve them.</p>
+
+                <div class="error-card">
+                    <div class="error-title">Panel Connection Error</div>
+                    <div class="error-message">"We're having some trouble connecting to your server, please wait..."</div>
+                    <p><strong>Meaning:</strong> The node is currently down or unreachable.</p>
+                    <p><strong>Action:</strong> Wait for a few minutes. The node should come back online automatically once it's restored. No action required on your end.</p>
+                </div>
+
+                <div class="error-card">
+                    <div class="error-title">Dashboard Error</div>
+                    <div class="error-message">"baggyblue.fun dice Error creating server: Failed to create server: [object Object]"</div>
+                    <p><strong>Meaning:</strong> The node is either full (no available slots/resources) or temporarily down.</p>
+                    <p><strong>Action:</strong> Try again later. The hosting provider may be upgrading resources or performing maintenance.</p>
+                </div>
+
+                <div class="error-card">
+                    <div class="error-title">Cloudflare Error (502/503/504)</div>
+                    <p><strong>Meaning:</strong> The panel itself is down, not just your server node.</p>
+                    <p><strong>Action:</strong> Wait until the panel service is back online. This is a host-side issue and will be resolved automatically. Common during maintenance or updates.</p>
+                </div>
+
+                <div class="error-card">
+                    <div class="error-title">Missing Files After Restart</div>
+                    <p><strong>Meaning:</strong> The VPS node was changed or reset, causing file loss.</p>
+                    <p><strong>Action:</strong> This is why backups are important! Always keep a local copy of your bot files or use Git integration. You'll need to re-upload your files.</p>
+                    <div class="warning-box">
+                        <strong>
+                            <svg style="width: 16px; height: 16px; display: inline-block; vertical-align: middle; margin-right: 5px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                                <line x1="12" y1="9" x2="12" y2="13"></line>
+                                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                            </svg>
+                            Prevention:
+                        </strong> Use Git repository integration to automatically restore your files after node changes.
+                    </div>
+                </div>
+
+                <div class="error-card">
+                    <div class="error-title">Connection Timeout Error</div>
+                    <p><strong>Meaning:</strong> Your network connection is too slow or unstable to complete the request.</p>
+                    <p><strong>Action:</strong> Try again once your internet connection improves. Consider using a more stable network if the problem persists.</p>
+                </div>
+
+                <div class="error-card">
+                    <div class="error-title">Running Installer / Installing Egg</div>
+                    <p><strong>Meaning:</strong> The server is currently installing or setting up the environment.</p>
+                    <p><strong>Action:</strong> Wait for the installation to complete. This usually takes 2-5 minutes.</p>
+                    <div class="warning-box">
+                        <strong>
+                            <svg style="width: 16px; height: 16px; display: inline-block; vertical-align: middle; margin-right: 5px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                                <line x1="12" y1="9" x2="12" y2="13"></line>
+                                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                            </svg>
+                            Extended Installation:
+                        </strong> If you're still seeing this after 10 minutes, it means the node is rebooting. Try again later once it has fully booted up.
+                    </div>
+                </div>
+
+                <h2>General Troubleshooting Tips</h2>
+                <div class="info-box">
+                    <ul>
+                        <li>Check the BaggyBlue Discord or status page for known issues</li>
+                        <li>Clear your browser cache if the panel isn't loading correctly</li>
+                        <li>Try a different browser if problems persist</li>
+                        <li>Always keep local backups of your bot files</li>
+                        <li>Use Git integration for automatic file restoration</li>
+                    </ul>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        const navItems = document.querySelectorAll('.nav-item');
+        const sections = document.querySelectorAll('.section');
+        const sidebar = document.getElementById('sidebar');
+        const mobileOverlay = document.getElementById('mobileOverlay');
+        const menuBtn = document.getElementById('menuBtn');
+        const menuIcon = document.getElementById('menuIcon');
+        const closeIcon = document.getElementById('closeIcon');
+        const menuText = document.getElementById('menuText');
+
+        function toggleMobileMenu() {
+            const isHidden = sidebar.classList.contains('mobile-hidden');
+            
+            if (isHidden) {
+                // Open menu
+                sidebar.classList.remove('mobile-hidden');
+                mobileOverlay.classList.add('active');
+                document.body.classList.add('menu-open');
+                menuIcon.style.display = 'none';
+                closeIcon.style.display = 'block';
+                menuText.textContent = 'Close';
+            } else {
+                // Close menu
+                sidebar.classList.add('mobile-hidden');
+                mobileOverlay.classList.remove('active');
+                document.body.classList.remove('menu-open');
+                menuIcon.style.display = 'block';
+                closeIcon.style.display = 'none';
+                menuText.textContent = 'Menu';
+            }
+        }
+
+        navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const sectionId = item.getAttribute('data-section');
+                
+                navItems.forEach(nav => nav.classList.remove('active'));
+                sections.forEach(section => section.classList.remove('active'));
+                
+                item.classList.add('active');
+                document.getElementById(sectionId).classList.add('active');
+                
+                // On mobile, close the menu after selection
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.add('mobile-hidden');
+                    mobileOverlay.classList.remove('active');
+                    document.body.classList.remove('menu-open');
+                    menuIcon.style.display = 'block';
+                    closeIcon.style.display = 'none';
+                    menuText.textContent = 'Menu';
+                }
+                
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        });
+
+        // Close sidebar when clicking overlay
+        mobileOverlay.addEventListener('click', () => {
+            if (window.innerWidth <= 768) {
+                sidebar.classList.add('mobile-hidden');
+                mobileOverlay.classList.remove('active');
+                document.body.classList.remove('menu-open');
+                menuIcon.style.display = 'block';
+                closeIcon.style.display = 'none';
+                menuText.textContent = 'Menu';
+            }
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768) {
+                sidebar.classList.remove('mobile-hidden');
+                mobileOverlay.classList.remove('active');
+                document.body.classList.remove('menu-open');
+                menuIcon.style.display = 'block';
+                closeIcon.style.display = 'none';
+                menuText.textContent = 'Menu';
+            } else {
+                // On mobile, ensure menu starts closed
+                sidebar.classList.add('mobile-hidden');
+            }
+        });
+    </script>
+</body>
+</html>
