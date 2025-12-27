@@ -379,11 +379,11 @@
             .mobile-header {
                 display: flex;
             }
-            
+
             .sidebar {
                 z-index: 200;
             }
-            
+
             .content {
                 margin-left: 0;
                 padding: 1.5rem 1rem;
@@ -441,7 +441,7 @@
 </head>
 <body>
     <div class="mobile-overlay" id="mobileOverlay"></div>
-    
+
     <div class="mobile-header">
         <div class="mobile-header-logo">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -465,7 +465,7 @@
     </div>
 
     <div class="container">
-        <aside class="sidebar mobile-hidden" id="sidebar">
+        <aside class="sidebar" id="sidebar">
             <div class="logo">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
@@ -727,11 +727,11 @@ app/main.py</div>
                 <h2>Adding Packages</h2>
                 <div class="step">
                     <p>Navigate to the <strong>Startup</strong> section to add packages:</p>
-                    
+
                     <h3>For Node.js Bots</h3>
                     <p>Add packages in the <strong>Additional Node Packages</strong> field.</p>
                     <div class="code-block">express discord.js dotenv axios</div>
-                    
+
                     <h3>For Python Bots</h3>
                     <p>Add packages in the <strong>Additional Python Packages</strong> field.</p>
                     <div class="code-block">discord.py requests python-dotenv aiohttp</div>
@@ -932,9 +932,21 @@ app/main.py</div>
         const closeIcon = document.getElementById('closeIcon');
         const menuText = document.getElementById('menuText');
 
+        // Initialize sidebar visibility based on screen size
+        function initSidebar() {
+            if (window.innerWidth <= 768) {
+                sidebar.classList.add('mobile-hidden');
+            } else {
+                sidebar.classList.remove('mobile-hidden');
+            }
+        }
+
+        // Call on page load
+        initSidebar();
+
         function toggleMobileMenu() {
             const isHidden = sidebar.classList.contains('mobile-hidden');
-            
+
             if (isHidden) {
                 // Open menu
                 sidebar.classList.remove('mobile-hidden');
@@ -957,13 +969,13 @@ app/main.py</div>
         navItems.forEach(item => {
             item.addEventListener('click', () => {
                 const sectionId = item.getAttribute('data-section');
-                
+
                 navItems.forEach(nav => nav.classList.remove('active'));
                 sections.forEach(section => section.classList.remove('active'));
-                
+
                 item.classList.add('active');
                 document.getElementById(sectionId).classList.add('active');
-                
+
                 // On mobile, close the menu after selection
                 if (window.innerWidth <= 768) {
                     sidebar.classList.add('mobile-hidden');
@@ -973,7 +985,7 @@ app/main.py</div>
                     closeIcon.style.display = 'none';
                     menuText.textContent = 'Menu';
                 }
-                
+
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             });
         });
@@ -1001,7 +1013,9 @@ app/main.py</div>
                 menuText.textContent = 'Menu';
             } else {
                 // On mobile, ensure menu starts closed
-                sidebar.classList.add('mobile-hidden');
+                if (!mobileOverlay.classList.contains('active')) {
+                    sidebar.classList.add('mobile-hidden');
+                }
             }
         });
     </script>
